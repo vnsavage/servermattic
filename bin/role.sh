@@ -15,7 +15,7 @@
       exit 0
   fi
 
-  GITURL='git@github.com:user/repo.git'
+  GITURL='git@github.com:vnsavage/servermattic.git'
 
   function get_metadata {
     eth0=eth0
