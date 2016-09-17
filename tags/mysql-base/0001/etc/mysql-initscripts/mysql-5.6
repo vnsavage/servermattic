@@ -1,0 +1,171 @@
+#!/bin/bash
+#
+# MySQL daemon start/stop script.
+#
+# Debian version. Based on the original by TcX.
+#
+
+### BEGIN INIT INFO
+# Provides:          mysql
+# Required-Start:    $local_fs $remote_fs
+# Required-Stop:     $local_fs $remote_fs
+# Should-Start:      
+# Should-Stop:       
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: mysql
+# Description:       mysql
+### END INIT INFO
+
+#
+set -e
+set -u
+${DEBIAN_SCRIPT_DEBUG:+ set -v -x}
+
+export HOME=/etc/mysql
+MYSQLD=/usr/local/mysql5.6/bin/mysqld
+MYSQLD_SAFE=/usr/local/mysql5.6/bin/mysqld_safe
+SELF=$(cd $(dirname $0); pwd -P)/$(basename $0)
+CONF=$HOME/$(basename $0).cnf
+MYADMIN="/usr/local/mysql5.6/bin/mysqladmin --defaults-file=$CONF"
+
+FLUSH_CACHES=""
+
+if [ ! -L /etc/roles/docker-container-base ]; then
+	# Flush the caches
+	FLUSH_CACHES="--flush-caches=1"
+	# Hint to the kernel that we dont want to use swap 
+	echo 0 > /proc/sys/vm/swappiness
+fi
+
+# Adding ulimit to allow more open files
+ulimit -n 512000
+
+# priority can be overriden and "-s" adds output to stderr
+ERR_LOGGER="logger -p daemon.err -t $SELF -i"
+
+test -x $MYSQLD || exit 0
+
+
+
+# Safeguard (relative paths, core dumps..)
+cd /
+umask 077
+export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/mysql5.6/bin
+
+## fetch a particular option from mysql's invocation
+#
+# usage: void mysqld_get_param option
+mysqld_get_param() {
+	$MYSQLD --print-defaults \
+		| tr " " "\n" \
+		| grep -- "--$1" \
+		| tail -n 1 \
+		| cut -d= -f2
+}
+
+## Checks if there is a server running and if so if it is accessible.
+#
+# check_alive insists on a pingable server
+# check_dead also fails if there is a lost mysqld in the process list
+#
+# Usage: boolean mysqld_status [check_alive|check_dead] [warn|nowarn]
+mysqld_status () {
+    ping_output=`$MYADMIN ping 2>&1`; ping_alive=$(( ! $? ))
+
+    ps_alive=0
+    pidfile=`mysqld_get_param pid-file`
+    if [ -f "$pidfile" ] && ps `cat $pidfile` >/dev/null 2>&1; then ps_alive=1; fi
+    
+    if [ "$1" = "check_alive"  -a  $ping_alive = 1 ] ||
+       [ "$1" = "check_dead"   -a  $ping_alive = 0  -a  $ps_alive = 0 ]; then
+	return 0 # EXIT_SUCCESS
+    else
+  	if [ "$2" = "warn" ]; then
+  	    /bin/echo -e "$ps_alive processes alive and '$MYADMIN ping' resulted in\n$ping_output\n" | $ERR_LOGGER -p daemon.debug
+	fi
+  	return 1 # EXIT_FAILURE
+    fi
+}
+
+#
+# main()
+#
+
+case "${1:-''}" in
+  'start')
+	# check for config file
+	if [ ! -r $CONF ]; then
+	  /bin/echo -e "\nWARNING: $CONF cannot be read. See README.Debian.gz"
+        fi 
+	# Start daemon
+	echo -n "Starting MySQL database server: mysqld"
+	if mysqld_status check_alive nowarn; then
+	   echo "...already running."
+	else
+  	    $MYSQLD_SAFE --defaults-file=$CONF --report-host=`hostname -f` ${FLUSH_CACHES} --numa-interleave=1 > /dev/null 2>&1 &
+	    for i in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15; do
+                sleep 1
+	        if mysqld_status check_alive nowarn ; then break; fi
+            done
+	    if mysqld_status check_alive warn; then
+                echo "."
+	    else
+	        echo "...failed."
+	        /bin/echo -e "\tPlease take a look at the syslog."
+	    fi
+	fi
+
+        if $MYADMIN variables | egrep -q have_bdb.*YES; then
+            /bin/echo "BerkeleyDB is obsolete, see /usr/share/doc/mysql-server-4.1/README.Debian.gz" | $ERR_LOGGER -p daemon.info
+        fi
+	;;
+
+  'stop')
+	# * As a passwordless mysqladmin (e.g. via ~/.my.cnf) must be possible
+	# at least for cron, we can rely on it here, too. (although we have 
+	# to specify it explicit as e.g. sudo environments points to the normal
+	# users home and not /root)
+	echo -n "Stopping MySQL database server: mysqld"	
+	if ! mysqld_status check_dead nowarn; then
+	  set +e
+	  shutdown_out=`$MYADMIN shutdown 2>&1`; r=$?
+	  set -e
+	  if [ "$r" -ne 0 ]; then
+	    /bin/echo -e -n "...failed.\n$shutdown_out\n"
+	  fi
+        fi
+
+        if ! mysqld_status check_dead warn; then
+	  echo "...failed."
+	  echo "Please stop MySQL manually and read /usr/share/doc/mysql-server-4.1/README.Debian.gz!"
+	  exit -1
+	else
+	  echo "."
+        fi
+	;;
+
+  'restart')
+	set +e; $SELF stop; set -e
+	$SELF start 
+	;;
+
+  'reload'|'force-reload')
+  	echo -n "Reloading MySQL database server: mysqld"
+	$MYADMIN reload
+	echo "."
+	;;
+
+  'status')
+	if mysqld_status check_alive nowarn; then
+	  $MYADMIN version
+	else
+	  echo "MySQL is stopped."
+	fi
+  	;;
+
+  *)
+	echo "Usage: $SELF start|stop|restart|reload|force-reload"
+	exit 1
+	;;
+esac
