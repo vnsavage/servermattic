@@ -4,29 +4,12 @@ Caveats:
 
 Step 1:
 
-Fork this Githhub repository which will serve as the source for your config management system. 
+- Fork this Githhub repository which will serve as the source for your config management system.
+- Clone the repository on your computer
+- Edit role.sh and deploy.sh to define the correct GITURL to your Github forked repository and commit it
+- When connecting to your server, you need to use the "-A" ssh parameter so you can connect to Github from your server 
 
-**OR**
-
-Create a new git repository with the following structure:
-
-/bin
-| - role.sh
-| - linkprop.sh
-| - deploy.sh
-/etc
-| - servers.dat
-/migrations
-| - /base
-| | - 0001.sh
-/tags
-| - /base
-| | - /0001
-| | | - /etc
-| | | | - /roles
-| | | | | - base
-
-This git repo is going to have lots of potentially sensitive data in it, so it should not be public. You may also want to consider restricting based on IP, as it shouldn't need to be accessible from the public world, but just from the servers you are deploying to.
+This git repo is going to have lots of potentially sensitive data in it, so it should not be public for production systems. You may also want to consider restricting based on IP, as it shouldn't need to be accessible from the public world, but just from the servers you are deploying to.
 
 Step 2: Edit your servers.dat file to fill in the appropriate information. See the included file for the expected format
 
