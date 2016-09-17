@@ -1,4 +1,4 @@
 # (sid):(dc):(wan_ip):(host_name):(lan_ip):(role1,role2):(price):
 #
 # Server in Dallas, Texas
-XEN-953:DFW:192.0.95.3:vnsavage.gm.a8c.com:192.168.95.3:cool-role1,cool-role2:0:
+XEN-953:DFW:192.0.95.3:vnsavage.gm.a8c.com:192.168.95.3:nginx-base,nginx-php,mysql-base:0:
