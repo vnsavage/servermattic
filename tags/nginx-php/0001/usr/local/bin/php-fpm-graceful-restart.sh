@@ -19,8 +19,6 @@ waitpid() {
 	done
 }
 
-/usr/sbin/service monit stop
-
 NGINX_PID=`cat /var/run/nginx.pid`
 if [ -z "$NGINX_PID" ]; then
 	NGINX_PID=$(pgrep -fx 'nginx: master process /usr/local/sbin/nginx')
@@ -40,10 +38,4 @@ $php_fpm_init_script restart
 # In some places, like sandboxes, Nginx wasn't running to begin with, so we don't want to start it.
 if [ -n "$NGINX_PID" ]; then
 	/usr/sbin/service nginx start
-fi
-/usr/sbin/service monit start
-
-# reload firewall if needed
-if [ -x "/usr/local/nagios/plugins/security-checks.sh" ]; then
-	/usr/local/nagios/plugins/security-checks.sh || /etc/init.d/firewall reload
 fi

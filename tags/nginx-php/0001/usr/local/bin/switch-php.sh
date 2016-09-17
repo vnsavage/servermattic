@@ -64,8 +64,6 @@ function do_symlinks() {
 		/usr/sbin/service ak-jobs restart
 	fi
 
-	ln -sf /etc/$PHP_VER-fpm-monit /etc/monit.d/php-fpm
-
 	if [ "$DISTRO" == "wheezy" ] || [ "$DISTRO" == "jessie" ]; then
 		ln -sf /etc/$PHP_VER-logs-logrotate-wheezy /etc/logrotate.d/php-logs
 	else

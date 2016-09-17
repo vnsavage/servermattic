@@ -4,7 +4,6 @@ After=network.target
 
 [Service]
 LimitNOFILE=256000
-ExecStartPre=/usr/local/bin/simple-irq-balance.pl
 ExecStartPre=/usr/local/bin/generate-nginx-opts.sh
 ExecStartPre=/usr/local/bin/pre-nginx.sh
 ExecStartPre=/usr/local/sbin/nginx -t
