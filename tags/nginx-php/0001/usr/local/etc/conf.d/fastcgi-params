@@ -17,6 +17,3 @@ fastcgi_param  CONTENT_TYPE     $content_type;
 fastcgi_param  CONTENT_LENGTH   $content_length;
 fastcgi_param  REDIRECT_URL     $request_uri;
 fastcgi_param  SERVER_PROTOCOL  $server_protocol;
-fastcgi_param  GEOIP_COUNTRY_CODE $country_code;
-fastcgi_param  GEOIP_LATITUDE   $geo_latitude;
-fastcgi_param  GEOIP_LONGTITUDE $geo_longtitude;

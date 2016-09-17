@@ -87,13 +87,6 @@
 	cd /root
 	git pull -q
     roles=$(ls -1 /root/roles/ | wc -l)
-    if [ $roles -gt 0 ]
-      then
-        for i in /root/roles/*
-          do
-			  echo $i updated
-        done
-    fi
   }
 
   function apply_role {
