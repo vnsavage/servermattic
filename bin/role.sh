@@ -27,7 +27,7 @@
         eth0=bond0
     fi
 
-    primary_ip=$( ifconfig $eth0 | grep "inet addr" | cut -d ':' -f 2 | cut -d " " -f 1 )
+    primary_ip=$( ip route get 8.8.8.8 | sed -n -e 's/^8.8.8.8.*src //p' | xargs )
     if [ -f /root/etc/ec2.dat ]; then
       id_meta=$( cat /root/etc/servers.dat /root/etc/ec2.dat 2>/dev/null | awk -F : '$0 ~ /^[^#]/ && $3 ~ /^'$primary_ip'$/' )
     else
