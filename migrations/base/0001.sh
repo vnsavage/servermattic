@@ -23,6 +23,10 @@ if grep -q ^7 /etc/debian_version; then
     code_name="wheezy"
 elif grep -q ^8 /etc/debian_version; then
     code_name="jessie"
+elif grep -q ^8 /etc/debian_version; then
+    code_name="jessie"
+elif grep -q ^9 /etc/debian_version; then
+    code_name="stretch"
 fi
 
 # Make sure loopback interface is up otherwise things like postfix won't work

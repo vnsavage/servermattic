@@ -6,6 +6,8 @@ elif grep -q ^7. /etc/debian_version; then
     DISTRO=wheezy
 elif grep -q ^8. /etc/debian_version; then
     DISTRO=jessie
+elif grep -q ^9. /etc/debian_version; then
+	DISTRO=stretch
 else
 	echo "Distro not supported"
 	exit 1
