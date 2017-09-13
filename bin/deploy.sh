@@ -1,6 +1,6 @@
 #!/bin/bash
 
-GITURL='git@github.com:vnsavage/servermattic.git'
+GITURL='https://github.com/vnsavage/servermattic.git'
 
 # Hack to get rid of bad stuff in your apt sources file
 sed -i s/'^deb cdrom'/'# deb cdrom'/g /etc/apt/sources.list
