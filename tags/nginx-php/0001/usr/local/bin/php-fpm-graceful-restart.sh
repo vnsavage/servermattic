@@ -9,7 +9,7 @@ if [ -n "$ENV_PHP_FPM_INIT_SCRIPT" ]; then
 elif [ $( pgrep -cf 'php-fpm: master process \(/usr/local/php5.4/etc/php-fpm.conf\)' ) -gt 0 ]; then
 	php_fpm_init_script='/usr/sbin/service php5.4-fpm'
 else
-	php_fpm_init_script='/usr/sbin/service php5.6-fpm'
+	php_fpm_init_script='/usr/sbin/service php7.0-fpm'
 fi
 
 waitpid() {

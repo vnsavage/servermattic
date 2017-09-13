@@ -1,0 +1,177 @@
+#! /bin/sh
+
+### BEGIN INIT INFO
+# Provides:          php7.0-fpm
+# Required-Start:    $all
+# Required-Stop:     $all
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: php7.0-fpm
+# Description:       php7.0-fpm
+### END INIT INFO
+
+
+ulimit -n 81920
+
+export LD_LIBRARY_PATH=/usr/local/php7.0/lib
+export HOSTNAME
+
+php_fpm_CONF=/usr/local/php7.0/etc/php-fpm.conf
+php_fpm_BIN=/usr/local/php7.0/bin/php-fpm
+php_fpm_PID=/var/run/php7.0-fpm.pid
+PHPRC=/usr/local/php7.0/conf; export PHPRC
+
+php_opts="--fpm-config $php_fpm_CONF"
+
+
+wait_for_pid () {
+	try=0
+
+	while test $try -lt 35 ; do
+
+		case "$1" in
+			'created')
+			if [ -f "$2" ] ; then
+				try=''
+				break
+			fi
+			;;
+
+			'removed')
+			if [ ! -f "$2" ] ; then
+				try=''
+				break
+			fi
+			;;
+		esac
+
+		echo -n .
+		try=`expr $try + 1`
+		sleep 1
+
+	done
+
+}
+
+case "$1" in
+	start)
+	# Parent process is already running, don't start again 
+	if [ -e $php_fpm_PID ] && [ $( pgrep -cP `cat /var/run/php7.0-fpm.pid` ) -gt 0 ]; then
+		echo "php_fpm already running"
+		exit 1
+	fi
+	# Parent process has died, but children still running
+	if [ $( pgrep -c -f $php_fpm_BIN ) -gt 0 ]; then
+		echo "php_fpm parent process not running, but children found"
+		pkill -f $php_fpm_BIN
+	fi
+		echo -n "Starting php_fpm "
+		$php_fpm_BIN $php_opts
+
+		if [ "$?" != 0 ] ; then
+			echo " failed"
+			exit 1
+		fi
+
+		wait_for_pid created $php_fpm_PID
+
+		if [ -n "$try" ] ; then
+			echo " failed"
+			exit 1
+		else
+			echo " done"
+		fi
+	;;
+
+	stop)
+		echo -n "Shutting down php_fpm "
+
+		if [ ! -r $php_fpm_PID ] ; then
+			echo "warning, no pid file found - php-fpm is not running ?"
+			exit 1
+		fi
+
+		kill -TERM `cat $php_fpm_PID`
+
+		wait_for_pid removed $php_fpm_PID
+
+		if [ -n "$try" ] ; then
+			echo " failed"
+			exit 1
+		else
+			echo " done"
+		fi
+	;;
+
+	quit)
+		echo -n "Gracefully shutting down php_fpm "
+
+		if [ ! -r $php_fpm_PID ] ; then
+			echo "warning, no pid file found - php-fpm is not running ?"
+			exit 1
+		fi
+
+		kill -QUIT `cat $php_fpm_PID`
+
+		wait_for_pid removed $php_fpm_PID
+
+		if [ -n "$try" ] ; then
+			echo " failed"
+			exit 1
+		else
+			echo " done"
+		fi
+	;;
+
+	restart)
+		$0 stop
+		$0 start
+	;;
+
+	reload)
+
+		echo -n "Reload service php-fpm "
+
+		if [ $( pgrep -cfx "/bin/sh $0 $1" ) -gt 1 ]; then
+			echo "$0 $1 already running"
+			exit 1
+		fi
+
+		if [ ! -r $php_fpm_PID ] ; then
+			echo "warning, no pid file found - php-fpm is not running ?"
+			exit 1
+		fi
+
+		# Test the new configs
+		output=$( $php_fpm_BIN -t 2>&1 )
+		if [ $? != 0 ] ; then
+			echo ". Could not reload configuration:"
+			echo "$output"
+			exit 1;
+		fi
+
+		kill -USR2 `cat $php_fpm_PID`
+
+		echo " done"
+	;;
+
+	logrotate)
+
+		echo -n "Re-opening php-fpm log file "
+
+		if [ ! -r $php_fpm_PID ] ; then
+			echo "warning, no pid file found - php-fpm is not running ?"
+			exit 1
+		fi
+
+		kill -USR1 `cat $php_fpm_PID`
+
+		echo " done"
+	;;
+
+	*)
+		echo "Usage: $0 {start|stop|quit|restart|reload|logrotate}"
+		exit 1
+	;;
+
+esac

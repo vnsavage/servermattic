@@ -76,7 +76,7 @@ function do_symlinks() {
 }
 
 if [ "$1" == "5.6" ]; then
-	if readlink -f /usr/local/bin/php | grep -q php5.6; then
+	if readlink -f /usr/local/bin/php | grep -q php7.0; then
 		echo "Already 5.6"
 		exit
 	fi
@@ -84,11 +84,11 @@ if [ "$1" == "5.6" ]; then
 
 	if [ "$DISTRO" == "jessie" ]; then
 		systemctl daemon-reload
-		systemctl enable $(readlink /root/services/php5.6-fpm.service)
+		systemctl enable $(readlink /root/services/php7.0-fpm.service)
 	else
-		update-rc.d php5.6-fpm defaults
+		update-rc.d php7.0-fpm defaults
 	fi
-	export ENV_PHP_FPM_INIT_SCRIPT='/usr/sbin/service php5.6-fpm'
+	export ENV_PHP_FPM_INIT_SCRIPT='/usr/sbin/service php7.0-fpm'
 	/usr/local/bin/php-fpm-graceful-restart.sh
 	sleep 2
 else 
