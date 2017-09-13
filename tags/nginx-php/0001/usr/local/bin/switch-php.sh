@@ -75,9 +75,9 @@ function do_symlinks() {
 	ln -sf /usr/local/$PHP_VER/bin/php /usr/local/bin/php
 }
 
-if [ "$1" == "5.6" ]; then
+if [ "$1" == "7.0" ]; then
 	if readlink -f /usr/local/bin/php | grep -q php7.0; then
-		echo "Already 5.6"
+		echo "Already 7.0"
 		exit
 	fi
 	do_symlinks $1
