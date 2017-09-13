@@ -17,4 +17,4 @@ chown -R nobody.nogroup /var/cache/nginx/page_cache
 
 /usr/sbin/service nginx reload
 
-/usr/local/bin/switch-php.sh 5.6
+/usr/local/bin/switch-php.sh 7.0
