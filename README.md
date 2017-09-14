@@ -4,7 +4,7 @@ Caveats:
 
 Step 1:
 
-- Fork this Githhub repository which will serve as the source for your config management system.
+- Fork this Github repository which will serve as the source for your config management system.
 - Clone the repository on your computer
 - Edit role.sh and deploy.sh to define the correct GITURL to your Github forked repository and commit it
 - When connecting to your server, you need to use the "-A" ssh parameter so you can connect to Github from your server 
