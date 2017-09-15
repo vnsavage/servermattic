@@ -1,0 +1,8 @@
+[all]
+vnsavage.gm.a8c.com ansible_ssh_host=192.0.95.211
+
+[dfw]
+vnsavage.gm.a8c.com
+
+[web_servers]
+vnsavage.gm.a8c.com
