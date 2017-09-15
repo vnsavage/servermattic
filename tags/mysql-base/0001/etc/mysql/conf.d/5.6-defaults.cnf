@@ -1,8 +1,0 @@
-[mysqld]
-lc-messages-dir	= /usr/local/mysql5.6/share
-
-# http://www.percona.com/doc/percona-server/5.6/performance/innodb_numa_support.html
-innodb_buffer_pool_populate = 1
-
-[mysqld_safe]
-ledir		= /usr/local/mysql5.6/bin
