@@ -89,5 +89,5 @@ newaliases
 chmod 755 /root/
 rm /root/.bash_profile
 
-# Set the default editor to vim, nano kind of sucks
-update-alternatives --set editor /usr/bin/vim.basic
+# Set the default editor to nano, vim kind of sucks
+update-alternatives --set editor /usr/bin/nano
