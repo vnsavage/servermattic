@@ -27,3 +27,7 @@ ln -sf /usr/local/mysql5.6 /usr/local/mysql-latest
 # Links against CentOS5 libs for compatibility.  See https://bugs.launchpad.net/percona-server/+bug/1104977
 ln -s /usr/lib/libssl.so.0.9.8 /usr/lib/libssl.so.6
 ln -s /usr/lib/libcrypto.so.0.9.8 /usr/lib/libcrypto.so.6
+
+# This version requires
+wget 'http://ftp.us.debian.org/debian/pool/main/r/readline6/libreadline6_6.3-8+b3_amd64.deb'
+dpkg -i libreadline6_6.3-8+b3_amd64.deb
