@@ -1,0 +1,11 @@
+#!/usr/bin/env ansible-playbook
+---
+- name: apply roles
+  hosts: all
+  become: true
+  any_errors_fatal: true
+  gather_facts: false
+  roles:
+    - { role: 'nginx-base', tags: [ 'nginx-base' ] }
+    - { role: 'nginx-php', tags: [ 'nginx-php' ] }
+    - { role: 'mysql-base', tags: [ 'mysql-base' ] }
